@@ -1043,7 +1043,7 @@ app.post("/external/auth", function(req, res)
 */
 app.listen(process.env.PORT, function()
 {
-	console.log('[!] Example app listening on port 33333 !')
+	console.log('[!] Example app listening on port ' + process.env.PORT +  ' !')
 
 	global.mysql_con = mysql.createConnection(
 	{
