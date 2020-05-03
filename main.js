@@ -156,6 +156,73 @@ app.post("/user/login", function(req, res)
 
 });
 
+app.get("/user/reset_api_tokens", function(req, res)
+{
+	var token = req.headers['x-token']
+
+	global.core.getUserIdFromToken(token, function(user_info)
+	{
+		if(user_info == null)
+			return res.status(400).json(
+			{
+				status: "error",
+				error: "invalid_token"
+			});
+
+		crypto.randomBytes(48, function(err, buffer)
+		{
+			if(err)
+				return res.status(400).json(
+				{
+					status: "error",
+					error: "internal_server_error"
+				});
+
+			var token1 = buffer.toString('hex');
+
+			token1 = token1.substring(0, 60);
+
+			crypto.randomBytes(48, function(err, buffer)
+			{
+				if(err)
+					return res.status(400).json(
+					{
+						status: "error",
+						error: "internal_server_error"
+					});
+
+				var token2 = buffer.toString('hex');
+
+				token2 = token2.substring(0, 60);
+
+				global.mysql_con.query("UPDATE user SET api_access_token='" + token1 + "' , api_secret_token='" + token2 + "' WHERE id='" + user_info.id + "'", function(err, result)
+				{
+					if(err)
+					{
+						return res.status(400).json(
+						{
+							status: "error",
+							error: "internal_server_error"
+						});
+					}
+
+					if(result.affectedRows == 0)
+						return res.status(400).json(
+						{
+							status: "error",
+							error: "invalid_token"
+						});
+
+					return res.status(200).json(
+					{
+						status: "success"
+					});
+				});
+			});
+		});
+	});
+});
+
 /*
 	User Register Route
 */
@@ -300,6 +367,7 @@ app.post("/user/register", function(req, res)
 app.post("/user/sync_with_platform", function(req, res)
 {
 	var token = req.headers['x-token']
+
 
 	var platform = global.core.getValue(req.body.platform);
 
