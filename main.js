@@ -163,7 +163,32 @@ app.post("/user/register", function(req, res)
 {
 	let email = global.core.getValue(req.body.email);
 	let phone = global.core.getValue(req.body.phone);
+	let name = global.core.getValue(req.body.name);
 	let password = global.core.getValue(req.body.password);
+
+
+	if(phone == "")
+	{
+		return res.status(400).send(
+		{
+			status: "error",
+			error: "invalid_phone"
+		});
+	}
+
+	if(name.length < 10)
+		return res.status(400).send(
+		{
+			status: "error",
+			error: "too_short_name"
+		});
+	if(name.length > 30)
+		return res.status(400).send(
+		{
+			status: "error",
+			error: "too_long_name"
+		});
+
 
 	if(email.length < 10)
 		return res.status(400).send(
@@ -205,7 +230,6 @@ app.post("/user/register", function(req, res)
 		}
 		else
 		{
-
 			//Check if email is already in use	
 			global.mysql_con.query("SELECT id FROM user WHERE email='" + email + "'", function(err, result, fields)
 			{
@@ -224,9 +248,9 @@ app.post("/user/register", function(req, res)
 					});
 				else
 					//Register
-					global.mysql_con.query("INSERT INTO user VALUES (NULL,'" + email + "','" + phone + "',NULL,'" + hash + "',1,1)", function(err, result)
+					global.mysql_con.query("INSERT INTO user VALUES (NULL,'" + email + "','" + name + "','" + phone + "',NULL,'" + hash + "',NULL,1,1,20)", function(err, result)
 					{
-						if(err) res.status(400).send(
+						if(err) return res.status(400).send(
 						{
 							status: "error",
 							error: "internal_server_error"
@@ -497,6 +521,21 @@ app.post("/user/edit_info", function(req, res)
 	var token = req.headers['x-token']
 	var email = global.core.getValue(req.body.email);
 	var phone = global.core.getValue(req.body.phone);
+	var name = global.core.getValue(req.body.name);
+
+
+	if(name.length < 10)
+		return res.status(400).send(
+		{
+			status: "error",
+			error: "too_short_name"
+		});
+	if(name.length > 30)
+		return res.status(400).send(
+		{
+			status: "error",
+			error: "too_long_name"
+		});
 
 	if(email.length < 10)
 		return res.send(
@@ -529,7 +568,7 @@ app.post("/user/edit_info", function(req, res)
 	whatsapp_notifications = whatsapp_notifications ? 1 : 0;
 
 
-	global.mysql_con.query("UPDATE user SET email='" + email + "',setting_whatsapp_delay='" + whatsapp_notification_time + "',phone='" + phone + "',setting_bot_autosend='" + kate_auto_send + "',setting_whatsapp_notifications='" + whatsapp_notifications + "' WHERE token='" + token + "'", function(err, result, fields)
+	global.mysql_con.query("UPDATE user SET name='" + name + "',email='" + email + "',setting_whatsapp_delay='" + whatsapp_notification_time + "',phone='" + phone + "',setting_bot_autosend='" + kate_auto_send + "',setting_whatsapp_notifications='" + whatsapp_notifications + "' WHERE token='" + token + "'", function(err, result, fields)
 	{
 		if(err)
 			return res.status(400).json(
@@ -556,7 +595,7 @@ app.post("/user/edit_info", function(req, res)
 /*
 	Remove user sync with a platform
 */
-app.post("/user/remove_sync", function(req, res)
+app.delete("/user/remove_sync", function(req, res)
 {
 	var token = req.headers['x-token']
 	var platform = global.core.getValue(req.body.platform);
@@ -1043,7 +1082,7 @@ app.post("/external/auth", function(req, res)
 */
 app.listen(process.env.PORT, function()
 {
-	console.log('[!] Example app listening on port ' + process.env.PORT +  ' !')
+	console.log('[!] Example app listening on port 33333 !')
 
 	global.mysql_con = mysql.createConnection(
 	{

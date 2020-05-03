@@ -65,7 +65,7 @@ module.exports = {
 	*/
 	getUserFromTokenSecure: function(token,callback)
 	{
-		global.mysql_con.query("SELECT email,phone,setting_whatsapp_notifications,setting_bot_autosend,setting_whatsapp_delay FROM user WHERE token='" + token + "'", function(err, result, fields)
+		global.mysql_con.query("SELECT email,name,phone,setting_whatsapp_notifications,setting_bot_autosend,setting_whatsapp_delay FROM user WHERE token='" + token + "'", function(err, result, fields)
 		{
 			if(err)
 				return callback(null);
