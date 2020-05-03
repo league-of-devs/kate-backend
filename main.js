@@ -1041,7 +1041,7 @@ app.post("/external/auth", function(req, res)
 /*
 	Init server
 */
-app.listen(33333, function()
+app.listen(process.env.PORT, function()
 {
 	console.log('[!] Example app listening on port 33333 !')
 
