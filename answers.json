@@ -1,0 +1,22 @@
+{
+	"availability_yes": 
+	[
+		"Olá! Ainda temos {quantidade} unidade{s} disponíve{is} para venda!",
+		"Bom dia! {quantidade} unidade{s} ainda se encontra{m} em nosso estoque!",
+		"Bom dia! {quantidade} unidade{s} ainda se encontra{m} disponíve{is} para venda em nosso estoque!",
+		"Bom dia, tudo bem? {quantidade} unidade{s} ainda se encontra{m} em nosso estoque!",
+		"Bom dia, tudo bem? {quantidade} unidade{s} ainda se encontra{m} disponíve{is} para venda em nosso estoque!"
+	],
+	"availability_no": 
+	[
+		"Olá, obrigado por perguntar! Infelizmente não temos mais unidades disponíveis, mas você pode olhar outros produtos da nossa loja para ver se interessa em algum!",
+		"Bom dia, infelizmente não. Mas recomendamos que dê uma olhada nos outros produtos da nossa loja. Tenha um bom dia!"
+	],
+	"generic_attribute":
+	[
+		"Boa tarde, o produto em questão apresenta o(a) {label} igual a {value}",
+		"Boa tarde, tudo bem com você? O produto em questão apresenta o(a) {label} igual a {value}",
+		"Boa tarde, fugindo do conoravírus, né? O produto em questão apresenta o(a) {label} igual a {value}"
+		
+	]
+}

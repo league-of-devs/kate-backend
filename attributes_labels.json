@@ -1,0 +1,12 @@
+{
+	"DIMENSIONS": "dimensões",
+	"COLOR": "cor",
+	"BRAND": "marca",
+	"MODEL": "modelo",
+	"WIGHT": "peso",
+	"PRICE": "preço",
+	"LINHA": "linha",
+	"DEPTH": "profundidade",
+	"HEIGHT": "altura",
+	"WIDTH": "largura"
+}
