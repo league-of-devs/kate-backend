@@ -248,16 +248,44 @@ app.post("/user/register", function(req, res)
 					});
 				else
 					//Register
-					global.mysql_con.query("INSERT INTO user VALUES (NULL,'" + email + "','" + name + "','" + phone + "',NULL,'" + hash + "',NULL,1,1,20)", function(err, result)
+					crypto.randomBytes(48, function(err, buffer)
 					{
-						if(err) return res.status(400).send(
+						if(err)
+							return res.status(400).json(
+							{
+								status: "error",
+								error: "internal_server_error"
+							});
+
+						var token1 = buffer.toString('hex');
+
+						token1 = token1.substring(0, 60);
+
+						crypto.randomBytes(48, function(err, buffer)
 						{
-							status: "error",
-							error: "internal_server_error"
-						});
-						res.send(
-						{
-							status: "success"
+							if(err)
+								return res.status(400).json(
+								{
+									status: "error",
+									error: "internal_server_error"
+								});
+
+							var token2 = buffer.toString('hex');
+
+							token2 = token2.substring(0, 60);
+
+							global.mysql_con.query("INSERT INTO user VALUES (NULL,'" + email + "','" + name + "','" + phone + "',NULL,'" + token1 + "','" + token2 + "','" + hash + "',NULL,1,1,20)", function(err, result)
+							{
+								if(err) return res.status(400).send(
+								{
+									status: "error",
+									error: "internal_server_error"
+								});
+								res.send(
+								{
+									status: "success"
+								});
+							});
 						});
 					});
 			});
