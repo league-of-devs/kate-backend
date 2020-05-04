@@ -531,7 +531,7 @@ app.get("/user/info", function(req, res)
 			kate_auto_send: user_info.setting_bot_autosend == 1
 		};
 
-		delete ser_info.setting_whatsapp_delay;
+		delete user_info.setting_whatsapp_delay;
 		delete user_info.setting_whatsapp_notifications;
 		delete user_info.setting_bot_autosend;
 		return res.status(200).json(user_info);
@@ -808,7 +808,7 @@ app.post("/question/answer", function(req, res)
 
 
 			let platform = result[0].platform;
-			global.core.getSync(uid, platform, function(data)
+			global.core.getSync(user_info.id, platform, function(data)
 			{
 				platforms[platform].answerQuestion(result[0].question_id, answer, data.token, function(err)
 				{
@@ -987,16 +987,12 @@ app.post("/external/notification", function(req, res)
 	//console.log(req.body);
 	//For now,only mercado_livre
 	var platform = "mercado_livre";
-
-	console.log(req.body);
-	console.log(req.query);
-
 	res.sendStatus(200);
 	if(req.body.topic == "questions")
 	{
 		global.meliObject.get(req.body.resource, function(err, res)
 		{
-			console.log("A");
+			
 			if(res.status == "ANSWERED")
 			{
 				global.mysql_con.query("SELECT answered_by FROM question WHERE platform='" + platform + "' AND question_id='" + res.id + "'", function(err, result, fields)
@@ -1148,8 +1144,6 @@ app.get("/external/auth", function(req, res)
 {
 	let full_sync_token = global.core.getValue(req.query.sync_token).split("-");
 
-	console.log("fst: " +  full_sync_token);
-
 	if(full_sync_token.length != 2)
 		return res.send(
 		{
@@ -1261,5 +1255,5 @@ app.listen(process.env.PORT, function()
 					}
 				});
 		});
-	},5 * 1000);
+	},60 * 1000);
 })
