@@ -250,19 +250,8 @@ app.post("/user/reset_api_tokens", function(req, res)
 app.post("/user/register", function(req, res)
 {
 	let email = global.core.getValue(req.body.email);
-	let phone = global.core.getValue(req.body.phone);
 	let name = global.core.getValue(req.body.name);
 	let password = global.core.getValue(req.body.password);
-
-
-	if(phone == "")
-	{
-		return res.status(400).send(
-		{
-			status: "error",
-			error: "invalid_phone"
-		});
-	}
 
 	if(name.length < 10)
 		return res.status(400).send(
@@ -362,7 +351,7 @@ app.post("/user/register", function(req, res)
 
 							token2 = token2.substring(0, 60);
 
-							global.mysql_con.query("INSERT INTO user VALUES (NULL,'" + email + "','" + name + "','" + phone + "',NULL,'" + token1 + "','" + token2 + "','" + hash + "',NULL,1,1,20)", function(err, result)
+							global.mysql_con.query("INSERT INTO user VALUES (NULL,'" + email + "','" + name + "',NULL,NULL,'" + token1 + "','" + token2 + "','" + hash + "',NULL,1,1,20)", function(err, result)
 							{
 								if(err) return res.status(400).send(
 								{
