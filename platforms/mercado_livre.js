@@ -273,7 +273,7 @@ global.platforms["mercado_livre"] = {
 								price: ires.price,
 								base_price: ires.base_price,
 								picture: ires.pictures[0].url,
-								warns = 0
+								warns: 0
 							};
 
 							prod_array.push(product);
