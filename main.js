@@ -1241,7 +1241,7 @@ function twilioTick()
 				console.log("[Twilio System] Para " + ltk.length + " usuários...");
 				for(let j = 0; j < ltk.length; j ++)
 				global.core.getUserInfo(ltk[j],function(user_data){
-						if(user_data != null)
+						if(user_data != null && lt[ltk[j]].phone != null)
 						{
 							//Twilio send message
 							client.messages.create({
