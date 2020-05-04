@@ -299,7 +299,7 @@ app.post("/user/register", function(req, res)
 			return res.status(400).send(
 			{
 				status: "error",
-				error: "internal_server_error_bcrypt"
+				error: "internal_server_error"
 			});
 		}
 		else
@@ -311,8 +311,7 @@ app.post("/user/register", function(req, res)
 					return res.status(400).send(
 					{
 						status: "error",
-						error: "internal_server_error",
-						mysql: err
+						error: "internal_server_error"
 					});
 
 				if(result.length > 0)
@@ -329,8 +328,7 @@ app.post("/user/register", function(req, res)
 							return res.status(400).json(
 							{
 								status: "error",
-								error: "internal_server_error",
-								error: "internal_server_error_bcrypt2"
+								error: "internal_server_error"
 							});
 
 						var token1 = buffer.toString('hex');
@@ -343,8 +341,7 @@ app.post("/user/register", function(req, res)
 								return res.status(400).json(
 								{
 									status: "error",
-									error: "internal_server_error",
-									error: "internal_server_error_bcrypt3"
+									error: "internal_server_error"
 								});
 
 							var token2 = buffer.toString('hex');
@@ -356,8 +353,7 @@ app.post("/user/register", function(req, res)
 								if(err) return res.status(400).send(
 								{
 									status: "error",
-									error: "internal_server_errorb",
-									mysql: err
+									error: "internal_server_error"
 								});
 								res.send(
 								{
@@ -1007,6 +1003,9 @@ app.post("/external/notification", function(req, res)
 	//For now,only mercado_livre
 	var platform = "mercado_livre";
 
+	console.log(req.body);
+	console.log(req.query);
+
 	res.sendStatus(200);
 	if(req.body.topic == "questions")
 	{
@@ -1153,6 +1152,8 @@ app.get("/external/auth", function(req, res)
 {
 	let full_sync_token = global.core.getValue(req.query.sync_token).split("-");
 
+	console.log("fst: " +  full_sync_token);
+
 	if(full_sync_token.length != 2)
 		return res.send(
 		{
@@ -1191,7 +1192,7 @@ app.get("/external/auth", function(req, res)
 */
 app.listen(process.env.PORT, function()
 {
-	console.log('[!] Example app listening on port ' + process.env.PORT + ' !')
+	console.log('[!] Example app listening on port ' + process.env.PORT +' !')
 
 	global.mysql_con = mysql.createConnection(
 	{
