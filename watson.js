@@ -12,6 +12,10 @@ var session_id;
 var assistantId = process.env.WATSON_ID;
 
 module.exports = {
+  forceNewSession: function()
+  {
+    session_id = null;
+  },
 
   answer: async (texto,nome_do_cliente) => 
   {

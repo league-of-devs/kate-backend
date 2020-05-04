@@ -381,11 +381,7 @@ app.post("/user/sync_with_platform", function(req, res)
 
 	if(token.length < 40)
 	{
-		return res.status(400).json(
-		{
-			status: "error",
-			error: "invalid_token"
-		});
+		return res.send("<script>window.location.href = 'https://askate.leagueofdevs.com.br?sync=" + platform + "&success=false';</script>");
 	}
 
 	//Check platform with supports
@@ -395,21 +391,13 @@ app.post("/user/sync_with_platform", function(req, res)
 		global.core.getUserIdFromToken(token, function(user_info)
 		{
 			if(user_info == null)
-				return res.status(400).json(
-				{
-					status: "error",
-					error: "invalid_token"
-				});
+				return res.send("<script>window.location.href = 'https://askate.leagueofdevs.com.br?sync=" + platform + "&success=false';</script>");
 
 			//Generate sync token
 			crypto.randomBytes(48, function(err, buffer)
 			{
 				if(err)
-					return res.status(400).json(
-					{
-						status: "error",
-						error: "internal_server_error"
-					});
+					return res.send("<script>window.location.href = 'https://askate.leagueofdevs.com.br?sync=" + platform + "&success=false';</script>");
 
 				var sync_token = buffer.toString('hex');
 
@@ -417,11 +405,7 @@ app.post("/user/sync_with_platform", function(req, res)
 				global.mysql_con.query("UPDATE user SET sync_token='" + sync_token + "' WHERE id='" + user_info.id + "'", function(err, result, fields)
 				{
 					if(err || result.affectedRows == 0)
-						return res.status(400).json(
-						{
-							status: "error",
-							error: "internal_server_error"
-						});
+						return res.send("<script>window.location.href = 'https://askate.leagueofdevs.com.br?sync=" + platform + "&success=false';</script>");
 
 					//Complete/Redirect auth user
 					platforms[platform].authUser(sync_token, res);
@@ -1024,6 +1008,7 @@ app.post("/external/notification", function(req, res)
 					if(result[0].answered_by != "2" && result[0].answered_by != "3")
 					{
 						//Avaliar resposta usando ibm watson
+						watson.forceNewSession();
 						watson.answer("%kind-eval% " + res.answer.text + " %kind-eval%", "").then(function(value)
 						{
 
@@ -1226,12 +1211,14 @@ app.listen(process.env.PORT, function()
 	setInterval(function(){
 
 
-		global.mysql_con.query("SELECT question.id,u.phone,u.name,question.question_id,question.user_id,question.answered_by FROM question INNER JOIN user u ON question.user_id = u.id WHERE answered_by IN (0,3) AND question.created_at <= DATE_SUB(NOW(), INTERVAL u.setting_whatsapp_delay MINUTE) AND (question.last_notification IS NULL OR question.last_notification <= DATE_SUB(NOW(), INTERVAL 1 HOUR))", function(err, result, fields){
+		global.mysql_con.query("SELECT question.id,u.phone,u.name,question.question_id,question.user_id,question.answered_by FROM question INNER JOIN user u ON question.user_id = u.id WHERE answered_by IN (0,3) AND u.setting_whatsapp_notifications IS TRUE AND question.created_at <= DATE_SUB(NOW(), INTERVAL u.setting_whatsapp_delay MINUTE) AND (question.last_notification IS NULL OR question.last_notification <= DATE_SUB(NOW(), INTERVAL 1 HOUR))", function(err, result, fields){
+			console.log("Vou tentar agora !!");
 			if(err)
 			{
+				console.log(err);
 				return;
 			}
-
+			console.log("Mandando: " + result.length + " perguntas");
 			let lt = {};
 
 			let h = "";
@@ -1258,8 +1245,11 @@ app.listen(process.env.PORT, function()
 			}
 
 			let ltk = Object.keys(lt);
+
+			console.log("Para " + ltk.length + " usuários...");
 			for(let j = 0; j < ltk.length; j ++)
 			global.core.getUserInfo(ltk[j],function(user_data){
+					console.log(user_data);
 					if(user_data != null)
 					{
 						//Twilio send message
@@ -1271,5 +1261,5 @@ app.listen(process.env.PORT, function()
 					}
 				});
 		});
-	},60 * 1000);
+	},5 * 1000);
 })

@@ -328,6 +328,7 @@ module.exports = {
 			});
 
 			//Pegar resposta
+			global.watson.forceNewSession();
 			global.watson.answer(question, client_name).then(function(value)
 			{
 				var data = JSON.parse(value.output.generic[0].text);

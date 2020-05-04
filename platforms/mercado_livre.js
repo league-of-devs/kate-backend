@@ -43,11 +43,7 @@ global.platforms["mercado_livre"] = {
 			{
 				if(error)
 				{
-					return res.send(
-					{
-						type: "error",
-						message: "internal_server_error"
-					});
+					return res.send("<script>window.location.href = 'https://askate.leagueofdevs.com.br?sync=mercado_livre&success=false';</script>");
 				}
 				body = JSON.parse(body);
 				//Everthing is okay
@@ -55,18 +51,10 @@ global.platforms["mercado_livre"] = {
 				global.mysql_con.query("SELECT id FROM user WHERE sync_token='" + token + "'", function(err, result, fields)
 				{
 					if(err)
-						return res.send(
-						{
-							status: "error",
-							error: "internal_server_error"
-						});
+						return res.send("<script>window.location.href = 'https://askate.leagueofdevs.com.br?sync=mercado_livre&success=false';</script>");
 
 					if(result.length == 0)
-						return res.send(
-						{
-							type: "error",
-							message: "invalid_sync_token"
-						});
+						return res.send("<script>window.location.href = 'https://askate.leagueofdevs.com.br?sync=mercado_livre&success=false';</script>");
 
 					global.mysql_con.query("UPDATE user SET sync_token=NULL WHERE id='" + result[0].id + "'", function(err, result, fields){});
 
@@ -75,11 +63,7 @@ global.platforms["mercado_livre"] = {
 					global.mysql_con.query("SELECT id FROM user_token WHERE user_id='" + result[0].id + "' AND platform='mercado_livre'", function(err, resultb, fields)
 					{
 						if(err)
-							return res.send(
-							{
-								status: "error",
-								error: "internal_server_error"
-							});
+							return res.send("<script>window.location.href = 'https://askate.leagueofdevs.com.br?sync=mercado_livre&success=false';</script>");
 
 						var sql = "";
 						if(resultb.length == 0)
@@ -95,17 +79,14 @@ global.platforms["mercado_livre"] = {
 						global.mysql_con.query(sql, function(err, result, fields)
 						{
 							if(err)
-								return res.send(
-								{
-									status: "error",
-									error: "internal_server_error"
-								});
+								return res.send("<script>window.location.href = 'https://askate.leagueofdevs.com.br?sync=mercado_livre&success=false';</script>");
 							else
-								return res.send(
-								{
+								return res.send("<script>window.location.href = 'https://askate.leagueofdevs.com.br?sync=mercado_livre&success=true';</script>");
+								
+								/*{?sync=mercado_livre&success=true
 									status: "success",
 									platform: "mercado_livre",
-								});
+								});*/
 						});
 					});
 				});
@@ -238,6 +219,7 @@ global.platforms["mercado_livre"] = {
 
 				mysql_con.query("DELETE FROM suggestion WHERE product_id='" + product.id + "'AND platform='mercado_livre' AND source=1", function(err, result, fields)
 				{
+					watson.forceNewSession();
 					for(let i = 0; i < keys.length; i++)
 					{
 						//Check suggetions with watson
