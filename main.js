@@ -33,6 +33,13 @@ var mysql = require('mysql');
 global.request = require('request')
 var bcrypt = require('bcrypt');
 var crypto = require('crypto');
+const client = require('twilio')(process.env.TWILIO_A,process.env.TWILIO_B);
+
+/*
+export TWILIO_ACCOUNT_SID=Your-Account-SID
+export TWILIO_AUTH_TOKEN=Your-Twilio-Auth-Token
+export TWILIO_PHONE_NUMBER=Your-Twilio-Phone-Number
+*/
 
 /*
   ____            _                ___       ___           _                    __                             
@@ -156,7 +163,7 @@ app.post("/user/login", function(req, res)
 
 });
 
-app.get("/user/reset_api_tokens", function(req, res)
+app.post("/user/reset_api_tokens", function(req, res)
 {
 	var token = req.headers['x-token']
 
@@ -848,7 +855,7 @@ app.post("/question/answer", function(req, res)
 /*
 	Get full product info (with questions and suggestions)
 */
-app.post("/product/full_info", function(req, res)
+app.get("/product/full_info", function(req, res)
 {
 	var token = req.headers['x-token']
 	var product = global.core.getValue(req.body.product);
@@ -992,6 +999,7 @@ app.get("/kate/platforms", function(req, res)
 */
 app.post("/external/notification", function(req, res)
 {
+	//console.log(req.body);
 	//For now,only mercado_livre
 	var platform = "mercado_livre";
 
@@ -1000,6 +1008,7 @@ app.post("/external/notification", function(req, res)
 	{
 		global.meliObject.get(req.body.resource, function(err, res)
 		{
+			
 			if(res.status == "ANSWERED")
 			{
 				global.mysql_con.query("SELECT answered_by FROM question WHERE platform='" + platform + "' AND question_id='" + res.id + "'", function(err, result, fields)
@@ -1055,7 +1064,7 @@ app.post("/external/notification", function(req, res)
 				{
 					if(answer == null)
 					{
-						global.core.saveQuestionAtDataBase(platform, res.id, res.item_id, data.user_id, res.seller_id, 0, res.text, null, function(res)
+						global.core.saveQuestionAtDataBase(platform, res.id, res.item_id, data.user_id, res.seller_id, 0, res.text, null,null, function(res)
 						{
 							console.log("[!] Question not answered added to database!");
 						});
@@ -1069,25 +1078,25 @@ app.post("/external/notification", function(req, res)
 
 						if(answer.type == "couldnt_understand")
 						{
-							global.core.saveQuestionAtDataBase(platform, res.id, res.item_id, data.user_id, res.seller_id, 0, res.text, null, function(res)
+							global.core.saveQuestionAtDataBase(platform, res.id, res.item_id, data.user_id, res.seller_id, 0, res.text, null,null, function(res)
 							{
 								console.log("[!] Question not answered added to database!");
 							})
 						}
 						else if(answer.type == "attribute_not_found")
 						{
-							global.core.saveQuestionAtDataBase(platform, res.id, res.item_id, data.user_id, res.seller_id, 0, res.text, null, function(resd)
+							global.core.saveQuestionAtDataBase(platform, res.id, res.item_id, data.user_id, res.seller_id, 0, res.text, null,answer.atribute_id, function(resd)
 							{
 								console.log("[!] Question not answered added to database!");
 
-								global.core.saveSuggestionAtDataBase(platform, data.user_id, res.item_id, 0, answer.atribute_id, null, function(res)
+								global.core.saveSuggestionAtDataBase(platform, data.user_id, res.item_id, res.id, answer.atribute_id, null, function(res)
 								{
 									console.log("[!] Suggestion added to database!");
 								})
 							})
 						}
 						else if(answer.type == "message")
-						{
+						{	
 							global.core.getUserInfo(data.user_id, function(dt)
 							{
 								if(dt.setting_bot_autosend == "1")
@@ -1100,7 +1109,7 @@ app.post("/external/notification", function(req, res)
 										}
 
 
-										global.core.saveQuestionAtDataBase(platform, res.id, res.item_id, data.user_id, res.seller_id, 2, res.text, answer.text, function(res)
+										global.core.saveQuestionAtDataBase(platform, res.id, res.item_id, data.user_id, res.seller_id, 2, res.text, answer.text,answer.atribute_id, function(res)
 										{
 											console.log("[!] Question answered by kate added to database!");
 										});
@@ -1108,7 +1117,7 @@ app.post("/external/notification", function(req, res)
 								}
 								else
 								{
-									global.core.saveQuestionAtDataBase(platform, res.id, res.item_id, data.user_id, res.seller_id, 3, res.text, answer.text, function(resd)
+									global.core.saveQuestionAtDataBase(platform, res.id, res.item_id, data.user_id, res.seller_id, 3, res.text, answer.text,answer.atribute_id, function(resd)
 									{
 										console.log("[!] Question answer suggestion by kate added in database!");
 									});
@@ -1193,4 +1202,58 @@ app.listen(process.env.PORT, function()
 		if(err) throw err;
 		console.log("[!] Connected with database!");
 	});
+
+	
+	/*
+		Twilio Messaging
+	*/
+	setInterval(function(){
+
+
+		global.mysql_con.query("SELECT question.id,u.phone,u.name,question.question_id,question.user_id FROM question INNER JOIN user u ON question.user_id = u.id WHERE question.created_at <= DATE_SUB(NOW(), INTERVAL u.setting_whatsapp_delay MINUTE) AND (question.last_notification IS NULL OR question.last_notification <= DATE_SUB(NOW(), INTERVAL 24 HOUR))", function(err, result, fields){
+			if(err)
+			{
+				return;
+			}
+
+			let lt = {};
+
+			let h = "";
+
+			for(let i = 0; i < result.length; i ++)
+			{
+				if(lt[result[i].user_id] == null)
+				{
+					lt[result[i].user_id] = {count: 1,phone: result[i].phone,name: result[i].name};
+					
+				}
+				else
+					lt[result[i].user_id].count = lt[result[i].user_id].count + 1;
+
+				if(h != "")
+					h += ",";
+
+				h += result[i].id;
+			}
+
+			if(result.length > 0)
+			{
+				global.mysql_con.query("UPDATE question SET last_notification = NOW() WHERE id IN (" + h + ")", function(err, result, fields){});
+			}
+
+			let ltk = Object.keys(lt);
+			for(let j = 0; j < ltk.length; j ++)
+			global.core.getUserInfo(ltk[j],function(user_data){
+					if(user_data != null)
+					{
+						//Twilio send message
+						client.messages.create({
+						  from: 'whatsapp:+14155238886', //'+12057548870',
+						  body: 'Olá ' + lt[ltk[j]].name + ", você tem " + lt[ltk[j]].count + (lt[ltk[j]].count > 1 ? " mensagens não lidas no asKate!" : " mensagem não lida no asKate!"),
+						  to: 'whatsapp:+' + lt[ltk[j]].phone
+						}).then(message => console.log(message.sid));
+					}
+				});
+		});
+	},60 * 1000);
 })

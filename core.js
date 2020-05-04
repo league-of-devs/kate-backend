@@ -377,6 +377,7 @@ module.exports = {
 										id: att.id,
 										label: attributes_labels[att.id]
 									});
+
 								else
 									answer = global.core.getAnswerFor("generic_attribute",
 									{
@@ -386,6 +387,8 @@ module.exports = {
 										label: attributes_labels[att.id]
 									});
 
+
+								answer.atribute_id= data.attribute;
 								f = true;
 								break;
 							}
@@ -411,8 +414,8 @@ module.exports = {
 	*/
 	/*
 		Source:
-			0 - Bot from questions
-			1 - Bot from description
+			0 - Bot from description
+			!=0 - Question id
 	*/
 	saveSuggestionAtDataBase: function(platform, user_id, product_id, source, name, value, callback)
 	{
@@ -435,9 +438,9 @@ module.exports = {
 	/*
 		Save question at database
 	*/
-	saveQuestionAtDataBase: function(platform, question_id, product_id, user_id, platform_user_id, answered_by, question, answer, callback)
+	saveQuestionAtDataBase: function(platform, question_id, product_id, user_id, platform_user_id, answered_by, question, answer, pattern, callback)
 	{
-		global.mysql_con.query("INSERT INTO question VALUES (NULL,'" + platform + "','" + question_id + "','" + product_id + "','" + user_id + "','" + platform_user_id + "'," + answered_by + ",'" + question + "'," + (answer == null ? "NULL" : "'" + answer + "'") + ",NOW()," + (answer == null || answered_by == "3" ? "NULL" : "NOW()") + ",0,'')", function(err, result, fields)
+		global.mysql_con.query("INSERT INTO question VALUES (NULL,'" + platform + "','" + question_id + "','" + product_id + "','" + user_id + "','" + platform_user_id + "'," + answered_by + ",'" + question + "'," + (answer == null ? "NULL" : "'" + answer + "'") + ",NOW()," + (answer == null || answered_by == "3" ? "NULL" : "NOW()") + ",0,'',NULL," + (pattern == null ? "NULL" : "'" + pattern + "'") + ")", function(err, result, fields)
 		{
 
 			if(err)

@@ -250,7 +250,7 @@ global.platforms["mercado_livre"] = {
 							if(data.type != null)
 								if(data.type == "attribute" && ks[data.attribute] == null)
 								{
-									global.core.saveSuggestionAtDataBase("mercado_livre", user_data.user_id, product.id, 1, data.attribute, v, function(res) {});
+									global.core.saveSuggestionAtDataBase("mercado_livre", user_data.user_id, product.id, 0, data.attribute, v, function(res) {});
 								}
 
 						});
@@ -360,11 +360,14 @@ global.platforms["mercado_livre"] = {
 
 
 						//Get questions for product
-						global.mysql_con.query("SELECT answered_by,question,answer,created_at,answered_at,id,kindness,kindness_info FROM question WHERE product_id='" + product.id + "' AND platform='mercado_livre'", function(err, result, fields)
+						global.mysql_con.query("SELECT question_id,answered_by,question,answer,pattern,created_at,UNIX_TIMESTAMP(created_at) as created_at_ms,answered_at,UNIX_TIMESTAMP(answered_at) as answered_at_ms,id,kindness,kindness_info FROM question WHERE product_id='" + product.id + "' AND platform='mercado_livre'", function(err, result, fields)
 						{
+							let pid = {};
 
 							let kindness_sum = 0;
 							let kindness_amount = 0;
+
+							let types = {};
 
 							for(let i = 0; i < result.length; i++)
 							{
@@ -387,13 +390,40 @@ global.platforms["mercado_livre"] = {
 									answered = false;
 								}
 
+								if(result[i].pattern != null)
+								{
+									if(types[result[i].pattern] ==  null)
+										types[result[i].pattern] = 1;
+									else
+										types[result[i].pattern] += 1;
+								}
+
 								result[i].kindness_info = {
 									greetings: result[i].kindness_info.includes("H"),
 									bye: result[i].kindness_info.includes("B")
 								}
 
-								result[i].answered = answered;
+								result[i].delay = result[i].answered_at_ms - result[i].created_at_ms;
 
+								delete result[i].answered_at_ms;
+								delete result[i].created_at_ms;
+
+								result[i].answered = answered;
+								pid[result[i].question_id] = i;
+								delete result[i].question_id;
+							}
+
+							for(let i = 0; i < result.length; i++)
+							{
+								if(result[i].pattern != null)
+								{		
+									result[i].equals_questions = types[result[i].pattern] - 1;					
+									result[i].pattern = global.attributes_labels[result[i].pattern];
+								}
+								else
+								{
+									result[i].equals_questions = 0;		
+								}
 							}
 
 							product.questions = result;
@@ -402,11 +432,18 @@ global.platforms["mercado_livre"] = {
 							//Get suggestions for product 
 							global.mysql_con.query("SELECT source,name,value,id FROM suggestion WHERE solved=0 AND product_id='" + product.id + "' AND platform='mercado_livre'", function(err, result, fields)
 							{
+								let desc_suggestion = [];
+
 								for(let i = 0; i < result.length; i++)
 								{
 									result[i].name = global.attributes_labels[result[i].name];
+
+									if(result[i].source == "0")
+										desc_suggestion.push(result[i]);
+									else
+										product.questions[pid[result[i].source]].suggestion = result[i];
 								}
-								product.attribute_suggestions = result;
+								product.attribute_suggestions = desc_suggestion;
 
 								//Add kindness level for product
 								resb.send(product);
