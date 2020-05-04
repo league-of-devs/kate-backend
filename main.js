@@ -547,6 +547,7 @@ app.get("/user/info", function(req, res)
 			kate_auto_send: user_info.setting_bot_autosend == 1
 		};
 
+		delete ser_info.setting_whatsapp_delay;
 		delete user_info.setting_whatsapp_notifications;
 		delete user_info.setting_bot_autosend;
 		return res.status(200).json(user_info);
