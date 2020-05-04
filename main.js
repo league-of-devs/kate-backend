@@ -299,7 +299,7 @@ app.post("/user/register", function(req, res)
 			return res.status(400).send(
 			{
 				status: "error",
-				error: "internal_server_error"
+				error: "internal_server_error_bcrypt"
 			});
 		}
 		else
@@ -311,7 +311,8 @@ app.post("/user/register", function(req, res)
 					return res.status(400).send(
 					{
 						status: "error",
-						error: "internal_server_error"
+						error: "internal_server_error",
+						mysql: err
 					});
 
 				if(result.length > 0)
@@ -328,7 +329,8 @@ app.post("/user/register", function(req, res)
 							return res.status(400).json(
 							{
 								status: "error",
-								error: "internal_server_error"
+								error: "internal_server_error",
+								error: "internal_server_error_bcrypt2"
 							});
 
 						var token1 = buffer.toString('hex');
@@ -341,7 +343,8 @@ app.post("/user/register", function(req, res)
 								return res.status(400).json(
 								{
 									status: "error",
-									error: "internal_server_error"
+									error: "internal_server_error",
+									error: "internal_server_error_bcrypt3"
 								});
 
 							var token2 = buffer.toString('hex');
@@ -353,7 +356,8 @@ app.post("/user/register", function(req, res)
 								if(err) return res.status(400).send(
 								{
 									status: "error",
-									error: "internal_server_error"
+									error: "internal_server_errorb",
+									mysql: err
 								});
 								res.send(
 								{
