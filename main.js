@@ -1079,7 +1079,9 @@ app.post("/external/notification", function(req, res)
 
 					global.core.getSyncUsingPlatformUserId(req.body.user_id, platform, function(data)
 					{
-						console.log("F");
+						console.log("F: " + req.body.user_id);
+						console.log("F: " + platform);
+						console.log("F: " + "SELECT token,refresh_token,user_id,TIMESTAMPDIFF(SECOND,last_refresh,NOW()) as elapsed_time FROM user_token WHERE platform_user_id='" + req.body.user_id + "' AND platform='" + platform + "'");
 						console.log(data);
 						if(data == null)
 							return;
