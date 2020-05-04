@@ -1210,12 +1210,13 @@ app.listen(process.env.PORT, function()
 	setInterval(function(){
 
 
-		global.mysql_con.query("SELECT question.id,u.phone,u.name,question.question_id,question.user_id FROM question INNER JOIN user u ON question.user_id = u.id WHERE question.created_at <= DATE_SUB(NOW(), INTERVAL u.setting_whatsapp_delay MINUTE) AND (question.last_notification IS NULL OR question.last_notification <= DATE_SUB(NOW(), INTERVAL 24 HOUR))", function(err, result, fields){
+		global.mysql_con.query("SELECT question.id,u.phone,u.name,question.question_id,question.user_id,question.answered_by FROM question INNER JOIN user u ON question.user_id = u.id WHERE answered_by IN (0,3) AND question.created_at <= DATE_SUB(NOW(), INTERVAL u.setting_whatsapp_delay MINUTE) AND (question.last_notification IS NULL OR question.last_notification <= DATE_SUB(NOW(), INTERVAL 1 HOUR))", function(err, result, fields){
 			if(err)
 			{
 				return;
 			}
 
+			console.log("aaa");
 			let lt = {};
 
 			let h = "";
