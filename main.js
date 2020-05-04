@@ -607,7 +607,7 @@ app.post("/user/suggestion/attribute", function(req, res)
 /*
 	Edit user info
 */
-app.post("/user/edit_info", function(req, res)
+app.put("/user/edit_info", function(req, res)
 {
 	var token = req.headers['x-token']
 	var email = global.core.getValue(req.body.email);
@@ -659,7 +659,7 @@ app.post("/user/edit_info", function(req, res)
 	whatsapp_notifications = whatsapp_notifications ? 1 : 0;
 
 
-	global.mysql_con.query("UPDATE user SET name='" + name + "',email='" + email + "',setting_whatsapp_delay='" + whatsapp_notification_time + "',phone='" + phone + "',setting_bot_autosend='" + kate_auto_send + "',setting_whatsapp_notifications='" + whatsapp_notifications + "' WHERE token='" + token + "'", function(err, result, fields)
+	global.mysql_con.query("UPDATE user SET name='" + name + "',email='" + email + "',setting_whatsapp_delay='" + whatsapp_notification_time + "',phone='" + phone + "',setting_bot_autosend='" + kate_auto_send + "',setting_whatsapp_notifications='" + whatsapp_notifications + "' WHERE token='" + token + "' OR api_access_token='" + token + "' OR api_secret_token ='" + token + "'", function(err, result, fields)
 	{
 		if(err)
 			return res.status(400).json(
