@@ -1145,7 +1145,7 @@ app.post("/external/notification", function(req, res)
 /*
 	Get authorization from platform
 */
-app.post("/external/auth", function(req, res)
+app.get("/external/auth", function(req, res)
 {
 	let full_sync_token = global.core.getValue(req.query.sync_token).split("-");
 
@@ -1187,7 +1187,7 @@ app.post("/external/auth", function(req, res)
 */
 app.listen(process.env.PORT, function()
 {
-	console.log('[!] Example app listening on port 33333 !')
+	console.log('[!] Example app listening on port ' + process.env.PORT + ' !')
 
 	global.mysql_con = mysql.createConnection(
 	{
@@ -1215,7 +1215,7 @@ app.listen(process.env.PORT, function()
 			{
 				return;
 			}
-			
+
 			let lt = {};
 
 			let h = "";
