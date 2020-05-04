@@ -17,6 +17,7 @@
     "ibm-watson": "^5.5.0",
     "mercadolibre": "0.0.13",
     "mysql": "^2.18.1",
-    "request": "^2.88.2"
+    "request": "^2.88.2",
+    "twilio": "^3.30.0"
   }
 }
