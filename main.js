@@ -1077,7 +1077,7 @@ app.post("/external/notification", function(req, res)
 						return;
 					}
 
-					global.core.getSyncUsingPlatformUserId(res.seller_id, platform, function(data)
+					global.core.getSyncUsingPlatformUserId(req.body.user_id, platform, function(data)
 					{
 						console.log("F");
 						console.log(data);
