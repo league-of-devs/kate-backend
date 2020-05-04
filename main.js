@@ -89,6 +89,17 @@ global.meliObject = new meli.Meli(process.env.MELI_ID, process.env.MELI_SECRET);
 
 */
 
+function log(msg) {
+  console.log(`[${moment().format('HH:mm:ss')}] ${msg}`)
+}
+
+app.use((req, _res, next) => {
+  log(`${req.method} ${req.path}`)
+
+  next()
+})
+
+
 /*
 	User Login Route
 */
@@ -586,7 +597,7 @@ app.post("/user/suggestion/attribute", function(req, res)
 			}
 			if(accept)
 				platforms[sug.platform].acceptSuggestion(user_info.id, sug, sug.value == null ? value : sug.value, res)
-			global.mysql_con.query("DELETE FROM suggestion WHERE user_id='" + ui + "' AND id='" + suggestion + "'", function(err, result, fields)
+			global.mysql_con.query("DELETE FROM suggestion WHERE user_id='" + user_info.id + "' AND id='" + suggestion + "'", function(err, result, fields)
 			{
 				if(!accept)
 				{
@@ -1043,15 +1054,11 @@ app.post("/external/notification", function(req, res)
 			else
 			if(res.status == "UNANSWERED")
 			{
-				console.log("B");
 				//Get bot answer
 				global.core.answerAQuestion(platform, res.text, "%ignore for now%", res.item_id, function(answer)
 				{
-					console.log("C: ");
-					console.log(answer);
 					if(answer == null)
 					{
-						console.log("D");
 						global.core.saveQuestionAtDataBase(platform, res.id, res.item_id, data.user_id, res.seller_id, 0, res.text, null,null, function(res)
 						{
 							console.log("[!] Question not answered added to database!");
@@ -1061,16 +1068,12 @@ app.post("/external/notification", function(req, res)
 
 					global.core.getSyncUsingPlatformUserId(req.body.user_id, platform, function(data)
 					{
-						console.log("F: " + req.body.user_id);
-						console.log("F: " + platform);
-						console.log("F: " + "SELECT token,refresh_token,user_id,TIMESTAMPDIFF(SECOND,last_refresh,NOW()) as elapsed_time FROM user_token WHERE platform_user_id='" + req.body.user_id + "' AND platform='" + platform + "'");
-						console.log(data);
+						
 						if(data == null)
 							return;
 
 						if(answer.type == "couldnt_understand")
 						{
-							console.log("G");
 							global.core.saveQuestionAtDataBase(platform, res.id, res.item_id, data.user_id, res.seller_id, 0, res.text, null,null, function(res)
 							{
 								console.log("[!] Question not answered added to database!");
@@ -1078,7 +1081,6 @@ app.post("/external/notification", function(req, res)
 						}
 						else if(answer.type == "attribute_not_found")
 						{
-							console.log("H");
 							global.core.saveQuestionAtDataBase(platform, res.id, res.item_id, data.user_id, res.seller_id, 0, res.text, null,answer.atribute_id, function(resd)
 							{
 								console.log("[!] Question not answered added to database!");
@@ -1091,7 +1093,7 @@ app.post("/external/notification", function(req, res)
 						}
 						else if(answer.type == "message")
 						{	
-							console.log("I");
+
 							global.core.getUserInfo(data.user_id, function(dt)
 							{
 								if(dt.setting_bot_autosend == "1")
@@ -1206,13 +1208,12 @@ app.listen(process.env.PORT, function()
 
 
 		global.mysql_con.query("SELECT question.id,u.phone,u.name,question.question_id,question.user_id,question.answered_by FROM question INNER JOIN user u ON question.user_id = u.id WHERE answered_by IN (0,3) AND u.setting_whatsapp_notifications IS TRUE AND question.created_at <= DATE_SUB(NOW(), INTERVAL u.setting_whatsapp_delay MINUTE) AND (question.last_notification IS NULL OR question.last_notification <= DATE_SUB(NOW(), INTERVAL 1 HOUR))", function(err, result, fields){
-			console.log("Vou tentar agora !!");
 			if(err)
 			{
 				console.log(err);
 				return;
 			}
-			console.log("Mandando: " + result.length + " perguntas");
+			console.log("[Twilio System] Mandando: " + result.length + " perguntas");
 			let lt = {};
 
 			let h = "";
@@ -1240,10 +1241,9 @@ app.listen(process.env.PORT, function()
 
 			let ltk = Object.keys(lt);
 
-			console.log("Para " + ltk.length + " usuários...");
+			console.log("[Twilio System] Para " + ltk.length + " usuários...");
 			for(let j = 0; j < ltk.length; j ++)
 			global.core.getUserInfo(ltk[j],function(user_data){
-					console.log(user_data);
 					if(user_data != null)
 					{
 						//Twilio send message
