@@ -16,6 +16,7 @@
     "express": "^4.17.1",
     "ibm-watson": "^5.5.0",
     "mercadolibre": "0.0.13",
+    "moment": "^2.25.3",
     "mysql": "^2.18.1",
     "request": "^2.88.2",
     "twilio": "^3.30.0"
