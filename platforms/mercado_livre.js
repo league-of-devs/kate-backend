@@ -68,6 +68,8 @@ global.platforms["mercado_livre"] = {
 							message: "invalid_sync_token"
 						});
 
+					global.mysql_con.query("UPDATE user SET sync_token=NULL WHERE id='" + result[0].id + "'", function(err, result, fields){});
+
 
 					//Save meli user information
 					global.mysql_con.query("SELECT id FROM user_token WHERE user_id='" + result[0].id + "' AND platform='mercado_livre'", function(err, resultb, fields)
@@ -441,7 +443,8 @@ global.platforms["mercado_livre"] = {
 									if(result[i].source == "0")
 										desc_suggestion.push(result[i]);
 									else
-										product.questions[pid[result[i].source]].suggestion = result[i];
+										if(product.questions[pid[result[i].source]] != null)
+											product.questions[pid[result[i].source]].suggestion = result[i];
 								}
 								product.attribute_suggestions = desc_suggestion;
 

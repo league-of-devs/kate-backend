@@ -1215,8 +1215,7 @@ app.listen(process.env.PORT, function()
 			{
 				return;
 			}
-
-			console.log("aaa");
+			
 			let lt = {};
 
 			let h = "";
