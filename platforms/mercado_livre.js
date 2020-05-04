@@ -272,17 +272,28 @@ global.platforms["mercado_livre"] = {
 								platform: "mercado_livre",
 								price: ires.price,
 								base_price: ires.base_price,
-								picture: ires.pictures[0].url
+								picture: ires.pictures[0].url,
+								warns = 0
 							};
 
 							prod_array.push(product);
 
-							prods_c++;
+							
 
-							if(prods_c == prods.length)
-							{
-								callback(prod_array);
-							}
+							global.mysql_con.query("SELECT COUNT(id) AS count_amount FROM question WHERE platform='mercado_livre' AND product_id='" + prods[i] + "' AND answered_by in (0,3)", function(err, result, fields){
+								product.warns += result[0].count_amount;
+								global.mysql_con.query("SELECT COUNT(id) AS count_amount FROM suggestion WHERE platform='mercado_livre' AND product_id='" + prods[i] + "' AND solved = 0", function(err, result, fields){
+									product.warns += result[0].count_amount;
+									prods_c++;
+		
+									if(prods_c == prods.length)
+									{
+										callback(prod_array);
+									}
+								});
+							});
+
+							
 						});
 					}
 
