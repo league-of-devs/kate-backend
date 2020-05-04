@@ -846,8 +846,8 @@ app.post("/question/answer", function(req, res)
 app.get("/product/full_info", function(req, res)
 {
 	var token = req.headers['x-token']
-	var product = global.core.getValue(req.body.product);
-	var platform = global.core.getValue(req.body.platform);
+	var product = global.core.getValue(req.query.product);
+	var platform = global.core.getValue(req.query.platform);
 
 	if(global.core.isValidPlataform(platform))
 	{
