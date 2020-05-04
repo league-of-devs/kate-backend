@@ -908,8 +908,8 @@ app.post("/user/logout",function(req,res){
 					status: "success"
 				});
 		});
-	}
-})
+	});
+});
 
 /*
 	Accept or deny bot answer
