@@ -34,6 +34,8 @@ global.request = require('request')
 var bcrypt = require('bcrypt');
 var crypto = require('crypto');
 var moment = require('moment');
+const cors = require('cors');
+app.use(cors());
 const client = require('twilio')(process.env.TWILIO_A,process.env.TWILIO_B);
 
 /*
@@ -1205,56 +1207,70 @@ app.listen(process.env.PORT, function()
 	/*
 		Twilio Messaging
 	*/
-	setInterval(function(){
-
-
-		global.mysql_con.query("SELECT question.id,u.phone,u.name,question.question_id,question.user_id,question.answered_by FROM question INNER JOIN user u ON question.user_id = u.id WHERE answered_by IN (0,3) AND u.setting_whatsapp_notifications IS TRUE AND question.created_at <= DATE_SUB(NOW(), INTERVAL u.setting_whatsapp_delay MINUTE) AND (question.last_notification IS NULL OR question.last_notification <= DATE_SUB(NOW(), INTERVAL 1 HOUR))", function(err, result, fields){
-			if(err)
-			{
-				console.log(err);
-				return;
-			}
-			console.log("[Twilio System] Mandando: " + result.length + " perguntas");
-			let lt = {};
-
-			let h = "";
-
-			for(let i = 0; i < result.length; i ++)
-			{
-				if(lt[result[i].user_id] == null)
-				{
-					lt[result[i].user_id] = {count: 1,phone: result[i].phone,name: result[i].name};
-					
-				}
-				else
-					lt[result[i].user_id].count = lt[result[i].user_id].count + 1;
-
-				if(h != "")
-					h += ",";
-
-				h += result[i].id;
-			}
-
-			if(result.length > 0)
-			{
-				global.mysql_con.query("UPDATE question SET last_notification = NOW() WHERE id IN (" + h + ")", function(err, result, fields){});
-			}
-
-			let ltk = Object.keys(lt);
-
-			console.log("[Twilio System] Para " + ltk.length + " usuários...");
-			for(let j = 0; j < ltk.length; j ++)
-			global.core.getUserInfo(ltk[j],function(user_data){
-					if(user_data != null)
-					{
-						//Twilio send message
-						client.messages.create({
-						  from: 'whatsapp:+14155238886', //'+12057548870',
-						  body: 'Olá ' + lt[ltk[j]].name + ", você tem " + lt[ltk[j]].count + (lt[ltk[j]].count > 1 ? " mensagens não lidas no asKate!" : " mensagem não lida no asKate!"),
-						  to: 'whatsapp:+' + lt[ltk[j]].phone
-						}).then(message => console.log(message.sid));
-					}
-				});
-		});
-	},60 * 1000);
+	twilioTick();
+	
 })
+
+function twilioTick()
+{
+	setTimeout(function(){
+		try{
+			global.mysql_con.query("SELECT question.id,u.phone,u.name,question.question_id,question.user_id,question.answered_by FROM question INNER JOIN user u ON question.user_id = u.id WHERE answered_by IN (0,3) AND u.setting_whatsapp_notifications IS TRUE AND question.created_at <= DATE_SUB(NOW(), INTERVAL u.setting_whatsapp_delay MINUTE) AND (question.last_notification IS NULL OR question.last_notification <= DATE_SUB(NOW(), INTERVAL 1 HOUR))", function(err, result, fields){
+				if(err)
+				{
+					console.log(err);
+					return;
+				}
+				console.log("[Twilio System] Mandando: " + result.length + " perguntas");
+				let lt = {};
+
+				let h = "";
+
+				for(let i = 0; i < result.length; i ++)
+				{
+					if(lt[result[i].user_id] == null)
+					{
+						lt[result[i].user_id] = {count: 1,phone: result[i].phone,name: result[i].name};
+						
+					}
+					else
+						lt[result[i].user_id].count = lt[result[i].user_id].count + 1;
+
+					if(h != "")
+						h += ",";
+
+					h += result[i].id;
+				}
+
+				if(result.length > 0)
+				{
+					global.mysql_con.query("UPDATE question SET last_notification = NOW() WHERE id IN (" + h + ")", function(err, result, fields){});
+				}
+
+				let ltk = Object.keys(lt);
+
+				console.log("[Twilio System] Para " + ltk.length + " usuários...");
+				for(let j = 0; j < ltk.length; j ++)
+				global.core.getUserInfo(ltk[j],function(user_data){
+						if(user_data != null)
+						{
+							//Twilio send message
+							client.messages.create({
+							  from: 'whatsapp:+14155238886', //'+12057548870',
+							  body: 'Olá ' + lt[ltk[j]].name + ", você tem " + lt[ltk[j]].count + (lt[ltk[j]].count > 1 ? " mensagens não lidas no asKate!" : " mensagem não lida no asKate!"),
+							  to: 'whatsapp:+' + lt[ltk[j]].phone
+							}).then(message => console.log(message.sid));
+						}
+					});
+			});
+		}
+		catch(err)
+		{
+
+		}
+		finally 
+		{
+		  twilioTick();
+		}
+	},60 * 1000);
+}
