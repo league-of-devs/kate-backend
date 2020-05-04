@@ -1011,7 +1011,7 @@ app.post("/external/notification", function(req, res)
 	{
 		global.meliObject.get(req.body.resource, function(err, res)
 		{
-			
+			console.log("A");
 			if(res.status == "ANSWERED")
 			{
 				global.mysql_con.query("SELECT answered_by FROM question WHERE platform='" + platform + "' AND question_id='" + res.id + "'", function(err, result, fields)
@@ -1061,12 +1061,15 @@ app.post("/external/notification", function(req, res)
 			else
 			if(res.status == "UNANSWERED")
 			{
-
+				console.log("B");
 				//Get bot answer
 				global.core.answerAQuestion(platform, res.text, "%ignore for now%", res.item_id, function(answer)
 				{
+					console.log("C: ");
+					console.log(answer);
 					if(answer == null)
 					{
+						console.log("D");
 						global.core.saveQuestionAtDataBase(platform, res.id, res.item_id, data.user_id, res.seller_id, 0, res.text, null,null, function(res)
 						{
 							console.log("[!] Question not answered added to database!");
@@ -1076,11 +1079,14 @@ app.post("/external/notification", function(req, res)
 
 					global.core.getSyncUsingPlatformUserId(res.seller_id, platform, function(data)
 					{
+						console.log("F");
+						console.log(data);
 						if(data == null)
 							return;
 
 						if(answer.type == "couldnt_understand")
 						{
+							console.log("G");
 							global.core.saveQuestionAtDataBase(platform, res.id, res.item_id, data.user_id, res.seller_id, 0, res.text, null,null, function(res)
 							{
 								console.log("[!] Question not answered added to database!");
@@ -1088,6 +1094,7 @@ app.post("/external/notification", function(req, res)
 						}
 						else if(answer.type == "attribute_not_found")
 						{
+							console.log("H");
 							global.core.saveQuestionAtDataBase(platform, res.id, res.item_id, data.user_id, res.seller_id, 0, res.text, null,answer.atribute_id, function(resd)
 							{
 								console.log("[!] Question not answered added to database!");
@@ -1100,6 +1107,7 @@ app.post("/external/notification", function(req, res)
 						}
 						else if(answer.type == "message")
 						{	
+							console.log("I");
 							global.core.getUserInfo(data.user_id, function(dt)
 							{
 								if(dt.setting_bot_autosend == "1")
