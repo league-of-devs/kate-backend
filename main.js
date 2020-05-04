@@ -887,7 +887,7 @@ app.post("/user/logout",function(req,res){
 				error: "invalid_token"
 			});
 
-		global.mysql_con.query("UPDATE USER SET token=NULL WHERE id='" + user_info.id + "'", function(err, result, fields)
+		global.mysql_con.query("UPDATE user SET token=NULL WHERE id='" + user_info.id + "'", function(err, result, fields)
 		{
 			if(err)
 				return res.status(400).json(
