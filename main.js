@@ -875,6 +875,42 @@ app.get("/product/full_info", function(req, res)
 
 });
 
+app.post("/user/logout",function(req,res){
+	var token = req.headers['x-token']
+
+	global.core.getUserIdFromToken(token, function(user_info)
+	{
+		if(user_info == null)
+			return res.status(400).json(
+			{
+				status: "error",
+				error: "invalid_token"
+			});
+
+		global.mysql_con.query("UPDATE USER SET token=NULL WHERE id='" + user_info.id + "'", function(err, result, fields)
+		{
+			if(err)
+				return res.status(400).json(
+				{
+					status: "error",
+					error: "internal_server_error"
+				});
+
+			if(result.affectedRows == 0)
+				return res.status(400).json(
+				{
+					status: "error",
+					error: "internal_server_error"
+				});
+
+				return res.json(
+				{
+					status: "success"
+				});
+		});
+	}
+})
+
 /*
 	Accept or deny bot answer
 */
@@ -889,7 +925,7 @@ app.post("/kate/suggestion/question", function(req, res)
 	global.core.getUserIdFromToken(token, function(user_info)
 	{
 		if(user_info == null)
-			return res.json(
+			return res.status(400).json(
 			{
 				status: "error",
 				error: "invalid_token"
