@@ -25,7 +25,7 @@ global.platforms["mercado_livre"] = {
 		res.status(200).json(
 		{
 			status: "success",
-			link: "http://auth.mercadolivre.com.br/authorization?response_type=code&client_id=" + process.env.MELI_ID + "&redirect_uri=https://test.devdavi.com.br/kate-auth?sync_token=" + sync_token + "-mercado_livre"
+			link: "http://auth.mercadolivre.com.br/authorization?response_type=code&client_id=" + process.env.MELI_ID + "&redirect_uri=https://kate.leagueofdevs.com.br/external/auth?sync_token=" + sync_token + "-mercado_livre"
 		});
 	},
 
@@ -37,7 +37,7 @@ global.platforms["mercado_livre"] = {
 		//Get access token
 
 		global.request.post(
-			'https://api.mercadolibre.com/oauth/token?grant_type=authorization_code&client_id=' + process.env.MELI_ID + '&client_secret=' + process.env.MELI_SECRET + '&code=' + code + '&redirect_uri=https://test.devdavi.com.br/kate-auth?sync_token=' + token + '-mercado_livre',
+			'https://api.mercadolibre.com/oauth/token?grant_type=authorization_code&client_id=' + process.env.MELI_ID + '&client_secret=' + process.env.MELI_SECRET + '&code=' + code + '&redirect_uri=https://kate.leagueofdevs.com.br/external/auth?sync_token=' + token + '-mercado_livre',
 			{},
 			(error, resb, body) =>
 			{
