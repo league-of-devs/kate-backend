@@ -19,7 +19,7 @@
 		"Boa tarde! O produto em questão apresenta o(a) {label} igual a {value}"
 		
 	],
-	"attribute_MARCA":
+	"attribute_BRAND":
 	[
 		"Boa tarde! O produto em questão apresenta a marca {value}!",
 		"Boa tarde! O produto é da marca {value}! obrigado por perguntar!",
