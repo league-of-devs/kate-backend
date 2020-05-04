@@ -16,7 +16,13 @@
 	[
 		"Boa tarde, o produto em questão apresenta o(a) {label} igual a {value}",
 		"Boa tarde, tudo bem com você? O produto em questão apresenta o(a) {label} igual a {value}",
-		"Boa tarde, fugindo do conoravírus, né? O produto em questão apresenta o(a) {label} igual a {value}"
+		"Boa tarde! O produto em questão apresenta o(a) {label} igual a {value}"
 		
+	],
+	"attribute_MARCA":
+	[
+		"Boa tarde! O produto em questão apresenta a marca {value}!",
+		"Boa tarde! O produto é da marca {value}! obrigado por perguntar!",
+		"Bom dia! O produto em questão é da empresa {value}!"
 	]
 }
