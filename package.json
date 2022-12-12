@@ -14,7 +14,7 @@
     "cors": "^2.8.5",
     "crypto": "^1.0.1",
     "dotenv": "^8.2.0",
-    "express": "^4.17.1",
+    "express": "^4.17.3",
     "ibm-watson": "^5.5.0",
     "mercadolibre": "0.0.13",
     "moment": "^2.25.3",
